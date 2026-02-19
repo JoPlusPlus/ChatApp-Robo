@@ -106,6 +106,33 @@ class ProfileScreen extends StatelessWidget {
                   trailing: Icon(Icons.arrow_forward_ios, size: 16),
                 ),
               ),
+              const SizedBox(height: 15),
+              Container(
+                width: 300,
+                decoration: BoxDecoration(
+                  color: AppColors.white.color,
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.shadow.color,
+                      blurRadius: 5,
+                      spreadRadius: 1,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: InkWell(
+                  onTap: () {
+                    // Handle logout
+                    // Later: Implement logout functionality
+                  },
+                  child: ListTile(
+                    leading: Icon(Icons.logout, color: AppColors.tagRed.color),
+                    title: Text('Logout'),
+                    trailing: Icon(Icons.arrow_forward_ios, size: 16),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
