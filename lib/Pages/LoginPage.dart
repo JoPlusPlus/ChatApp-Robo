@@ -1,16 +1,15 @@
 import 'package:chatapp/Widgets/socialButton.dart';
 import 'package:flutter/material.dart';
 
-class Loginpage extends StatelessWidget {
-  const Loginpage({super.key});
+class LoginPage extends StatelessWidget {
+  const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:  Color(0xff5532AB),
+      backgroundColor: Color(0xff5532AB),
       body: Column(
         children: [
-
           /// Top Header
           Container(
             height: 220,
@@ -20,7 +19,6 @@ class Loginpage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 /// Back Button
                 IconButton(
                   onPressed: () => Navigator.pop(context),
@@ -36,7 +34,6 @@ class Loginpage extends StatelessWidget {
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
-                    
                   ),
                 ),
 
@@ -45,10 +42,7 @@ class Loginpage extends StatelessWidget {
                 /// Subtitle
                 const Text(
                   'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.white,
-                  ),
+                  style: TextStyle(fontSize: 20, color: Colors.white),
                 ),
               ],
             ),
@@ -70,9 +64,8 @@ class Loginpage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-            
                   /// Username
-                  const SizedBox(height: 40,), 
+                  const SizedBox(height: 40),
                   TextField(
                     decoration: InputDecoration(
                       hintText: 'Username',
@@ -88,9 +81,9 @@ class Loginpage extends StatelessWidget {
                       ),
                     ),
                   ),
-            
+
                   const SizedBox(height: 15),
-            
+
                   /// Password
                   TextField(
                     obscureText: true,
@@ -108,9 +101,9 @@ class Loginpage extends StatelessWidget {
                       ),
                     ),
                   ),
-            
+
                   const SizedBox(height: 8),
-            
+
                   /// Forgot Password
                   Align(
                     alignment: Alignment.centerRight,
@@ -122,14 +115,16 @@ class Loginpage extends StatelessWidget {
                       ),
                     ),
                   ),
-            
+
                   const SizedBox(height: 10),
-            
+
                   /// Sign In Button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/home');
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
                         foregroundColor: Colors.white,
@@ -141,9 +136,9 @@ class Loginpage extends StatelessWidget {
                       child: const Text('Sign In'),
                     ),
                   ),
-            
+
                   const SizedBox(height: 100),
-            
+
                   /// Continue with Google
                   SocialButton(
                     text: 'Continue with Google',
@@ -151,9 +146,9 @@ class Loginpage extends StatelessWidget {
                     onTap: () {},
                     iconSize: 40,
                   ),
-            
+
                   const SizedBox(height: 10),
-            
+
                   /// Continue with Facebook
                   SocialButton(
                     text: 'Continue with Facebook',
@@ -168,4 +163,5 @@ class Loginpage extends StatelessWidget {
         ],
       ),
     );
-  }}
+  }
+}
