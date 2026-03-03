@@ -1,5 +1,7 @@
+import 'package:chatwala/core/app_toast.dart';
 import 'package:chatwala/core/utils/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../cubit/chat_cubit.dart';
@@ -78,11 +80,21 @@ class ChatMessageList extends StatelessWidget {
               final message = state.messages[state.messages.length - 1 - index];
               final isMe = message.senderId == currentUserId;
 
-              return Align(
-                alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2),
-                  child: ChatBubble(message: message, isSender: isMe),
+              return GestureDetector(
+                onLongPress: () => _showMessageOptions(
+                  context,
+                  message.id,
+                  isMe,
+                  message.type == 'text' ? message.text : null,
+                ),
+                child: Align(
+                  alignment: isMe
+                      ? Alignment.centerRight
+                      : Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    child: ChatBubble(message: message, isSender: isMe),
+                  ),
                 ),
               );
             },
@@ -91,6 +103,104 @@ class ChatMessageList extends StatelessWidget {
 
         return const SizedBox();
       },
+    );
+  }
+
+  static void _showMessageOptions(
+    BuildContext context,
+    String messageId,
+    bool isMe,
+    String? textToCopy,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (sheetCtx) => Container(
+        decoration: BoxDecoration(
+          color: AppTheme.surface(sheetCtx),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.divider(sheetCtx),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                if (textToCopy != null && textToCopy.isNotEmpty)
+                  ListTile(
+                    leading: Icon(
+                      Icons.copy_rounded,
+                      color: AppTheme.textSecondary(sheetCtx),
+                    ),
+                    title: Text(
+                      'Copy',
+                      style: TextStyle(color: AppTheme.textPrimary(sheetCtx)),
+                    ),
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: textToCopy));
+                      Navigator.pop(sheetCtx);
+                      AppToast.showSuccess('Copied to clipboard');
+                    },
+                  ),
+                if (isMe)
+                  ListTile(
+                    leading: const Icon(
+                      Icons.delete_outline_rounded,
+                      color: AppTheme.error,
+                    ),
+                    title: const Text(
+                      'Delete message',
+                      style: TextStyle(color: AppTheme.error),
+                    ),
+                    onTap: () {
+                      Navigator.pop(sheetCtx);
+                      _confirmDeleteMessage(context, messageId);
+                    },
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  static void _confirmDeleteMessage(BuildContext context, String messageId) {
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Delete Message'),
+        content: const Text('Are you sure you want to delete this message?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogCtx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              context.read<ChatCubit>().deleteMessage(messageId);
+              Navigator.pop(dialogCtx);
+              AppToast.showSuccess('Message deleted');
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.error,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -3,9 +3,9 @@ import 'dart:io';
 
 import 'package:chatwala/core/app_toast.dart';
 import 'package:chatwala/core/utils/app_theme.dart';
+import 'package:chatwala/feature/chat/screens/call_screen.dart';
 import 'package:chatwala/feature/chat/screens/chat_settings_screen.dart';
 import 'package:chatwala/feature/chat/widget/attachment_sheet.dart';
-import 'package:chatwala/feature/chat/widget/call_initiate_dialog.dart';
 import 'package:chatwala/feature/chat/widget/chat_app_bar_title.dart';
 import 'package:chatwala/feature/chat/widget/chat_input_bar.dart';
 import 'package:chatwala/feature/chat/widget/chat_message_list.dart';
@@ -146,11 +146,15 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
               actions: [
                 IconButton(
-                  onPressed: () => showCallInitiateDialog(
-                    context: context,
-                    isVideo: true,
-                    receiverName: widget.receiverName,
-                    receiverImage: widget.receiverImage,
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => CallScreen(
+                        callerName: widget.receiverName,
+                        callerImage: widget.receiverImage,
+                        isVideo: true,
+                      ),
+                    ),
                   ),
                   icon: Icon(
                     Icons.videocam_outlined,
@@ -159,11 +163,15 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ),
                 IconButton(
-                  onPressed: () => showCallInitiateDialog(
-                    context: context,
-                    isVideo: false,
-                    receiverName: widget.receiverName,
-                    receiverImage: widget.receiverImage,
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => CallScreen(
+                        callerName: widget.receiverName,
+                        callerImage: widget.receiverImage,
+                        isVideo: false,
+                      ),
+                    ),
                   ),
                   icon: Icon(
                     Icons.call_outlined,
@@ -185,20 +193,26 @@ class _ChatScreenState extends State<ChatScreen> {
                         _openChatSettings(state);
                         break;
                       case 'search':
-                        showSearchChatSheet(context);
-                        break;
-                      case 'wallpaper':
-                        AppToast.showInfo(
-                          'Wallpaper customization coming soon',
+                        final state = context.read<ChatCubit>().state;
+                        final msgs = state is ChatLoaded
+                            ? state.messages
+                            : <dynamic>[];
+                        showSearchChatSheet(
+                          context,
+                          messages: msgs.cast(),
+                          currentUserId: widget.currentUserId,
                         );
+                        break;
+                      case 'delete_chat':
+                        _showDeleteChatDialog(context);
                         break;
                     }
                   },
                   itemBuilder: (context) => [
                     const PopupMenuItem(value: 'search', child: Text('Search')),
                     const PopupMenuItem(
-                      value: 'wallpaper',
-                      child: Text('Wallpaper'),
+                      value: 'delete_chat',
+                      child: Text('Delete Chat'),
                     ),
                     const PopupMenuItem(
                       value: 'settings',
@@ -242,6 +256,39 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  void _showDeleteChatDialog(BuildContext ctx) {
+    showDialog(
+      context: ctx,
+      builder: (dialogCtx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Delete Chat'),
+        content: const Text(
+          'Are you sure you want to delete this entire conversation? '
+          'This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogCtx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              ctx.read<ChatCubit>().deleteChat();
+              Navigator.pop(dialogCtx);
+              Navigator.pop(ctx);
+              AppToast.showSuccess('Chat deleted');
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.error,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
       ),
     );
   }

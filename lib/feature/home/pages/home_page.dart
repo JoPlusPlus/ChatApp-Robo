@@ -1,9 +1,12 @@
+import 'package:chatwala/core/app_toast.dart';
 import 'package:chatwala/core/utils/app_theme.dart';
 import 'package:chatwala/feature/home/cubit/home_cubit.dart';
 import 'package:chatwala/feature/home/cubit/home_state.dart';
 import 'package:chatwala/feature/home/widgets/chat_tile.dart';
+import 'package:chatwala/feature/profile/pages/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,6 +19,7 @@ class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
+  final ImagePicker _imagePicker = ImagePicker();
 
   @override
   void initState() {
@@ -61,9 +65,12 @@ class _HomePageState extends State<HomePage>
           ),
           centerTitle: false,
           actions: [
-            _HeaderActionIcon(icon: Icons.camera_alt_outlined, onTap: () {}),
+            _HeaderActionIcon(
+              icon: Icons.camera_alt_outlined,
+              onTap: () => _openCamera(context),
+            ),
             const SizedBox(width: 8),
-            _HeaderActionIcon(icon: Icons.more_vert_rounded, onTap: () {}),
+            _buildMoreMenu(context),
             const SizedBox(width: 12),
           ],
           flexibleSpace: FlexibleSpaceBar(
@@ -210,6 +217,111 @@ class _HomePageState extends State<HomePage>
     );
   }
 
+  Future<void> _openCamera(BuildContext context) async {
+    try {
+      final XFile? photo = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 70,
+        maxWidth: 1024,
+        maxHeight: 1024,
+      );
+      if (photo != null && mounted) {
+        AppToast.showSuccess('Photo captured! Select a chat to share it.');
+      }
+    } catch (e) {
+      if (mounted) AppToast.showError('Could not open camera');
+    }
+  }
+
+  Widget _buildMoreMenu(BuildContext context) {
+    return PopupMenuButton<String>(
+      icon: Container(
+        width: 38,
+        height: 38,
+        decoration: BoxDecoration(
+          color: AppTheme.inputFill(context),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(
+          Icons.more_vert_rounded,
+          color: AppTheme.textSecondary(context),
+          size: 20,
+        ),
+      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: AppTheme.surface(context),
+      onSelected: (value) {
+        switch (value) {
+          case 'new_group':
+            AppToast.showInfo('Group chat coming soon');
+            break;
+          case 'starred':
+            AppToast.showInfo('Starred messages coming soon');
+            break;
+          case 'settings':
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProfileScreen()),
+            );
+            break;
+        }
+      },
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          value: 'new_group',
+          child: Row(
+            children: [
+              Icon(
+                Icons.group_add_outlined,
+                color: AppTheme.textSecondary(context),
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'New Group',
+                style: TextStyle(color: AppTheme.textPrimary(context)),
+              ),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 'starred',
+          child: Row(
+            children: [
+              Icon(
+                Icons.star_outline_rounded,
+                color: AppTheme.textSecondary(context),
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Starred Messages',
+                style: TextStyle(color: AppTheme.textPrimary(context)),
+              ),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 'settings',
+          child: Row(
+            children: [
+              Icon(
+                Icons.settings_outlined,
+                color: AppTheme.textSecondary(context),
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Settings',
+                style: TextStyle(color: AppTheme.textPrimary(context)),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildUserList(
     BuildContext context,
     List<ChatUser> users,
@@ -265,7 +377,6 @@ class _HomePageState extends State<HomePage>
     );
   }
 }
-
 
 class _HeaderActionIcon extends StatelessWidget {
   final IconData icon;

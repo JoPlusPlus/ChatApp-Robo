@@ -20,6 +20,8 @@ class ChatCubit extends Cubit<ChatState> {
 
   ChatCubit(this._service, this.currentUserId, this.receiverId, [this.lastSeen])
     : super(ChatLoading()) {
+    // Mark existing unread messages as read immediately on open
+    _markAsRead();
     startListening();
   }
 
@@ -102,6 +104,15 @@ class ChatCubit extends Cubit<ChatState> {
     } catch (e) {
       return;
     }
+  }
+
+  Future<void> deleteMessage(String messageId) async {
+    final chatId = _service.getChatId(currentUserId, receiverId);
+    await _service.deleteMessage(chatId, messageId);
+  }
+
+  Future<void> deleteChat() async {
+    await _service.deleteChat(currentUserId, receiverId);
   }
 
   Future<void> setMyTyping(bool typing) =>

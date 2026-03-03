@@ -22,7 +22,7 @@ void main() async {
   }
   Bloc.observer = AppBlocObserver();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.leanBack);
-  runApp(DevicePreview(enabled: true, builder: (context) => const MyApp()));
+  runApp(DevicePreview(enabled: false, builder: (context) => const MyApp()));
 }
 
 class MyApp extends StatelessWidget {

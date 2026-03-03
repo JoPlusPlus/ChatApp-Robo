@@ -76,14 +76,21 @@ class ChatService {
           .doc(chatId)
           .collection(AppConstants.messagesCollection)
           .where('receiverId', isEqualTo: currentUserId)
-          .where('status', isNotEqualTo: 'read')
+          .where('status', whereIn: ['sent', 'delivered'])
           .get();
+
+      if (query.docs.isEmpty) return;
 
       final batch = _db.batch();
       for (final doc in query.docs) {
         batch.update(doc.reference, {'status': 'read'});
       }
       await batch.commit();
+
+      // Touch the chat document so getTotalUnreadCount stream re-fires
+      await _db.collection(AppConstants.chatsCollection).doc(chatId).set({
+        'lastReadAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
     } catch (e) {
       // silently fail
     }
@@ -209,6 +216,43 @@ class ChatService {
       status: MessageStatus.sent,
     );
     await sendMessage(msg);
+  }
+
+  /// Delete a single message
+  Future<void> deleteMessage(String chatId, String messageId) async {
+    try {
+      await _db
+          .collection(AppConstants.chatsCollection)
+          .doc(chatId)
+          .collection(AppConstants.messagesCollection)
+          .doc(messageId)
+          .delete();
+    } catch (e) {
+      // silently fail
+    }
+  }
+
+  /// Delete entire chat (all messages + chat document)
+  Future<void> deleteChat(String uid1, String uid2) async {
+    final chatId = _getChatId(uid1, uid2);
+    try {
+      // Delete all messages in sub-collection
+      final msgs = await _db
+          .collection(AppConstants.chatsCollection)
+          .doc(chatId)
+          .collection(AppConstants.messagesCollection)
+          .get();
+      final batch = _db.batch();
+      for (final doc in msgs.docs) {
+        batch.delete(doc.reference);
+      }
+      await batch.commit();
+
+      // Delete the chat document itself
+      await _db.collection(AppConstants.chatsCollection).doc(chatId).delete();
+    } catch (e) {
+      // silently fail
+    }
   }
 
   /// Set user offline when they sign out or app closes
