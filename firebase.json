@@ -1,0 +1,33 @@
+{
+  "flutter": {
+    "platforms": {
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "chat-app-shahd",
+          "configurations": {
+            "ios": "1:707809151646:ios:e0546198422272dc99098f",
+            "macos": "1:707809151646:ios:e0546198422272dc99098f",
+            "windows": "1:707809151646:web:65e660b063ff9ba899098f"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "database": {
+    "rules": "database.rules.json"
+  }
+}
