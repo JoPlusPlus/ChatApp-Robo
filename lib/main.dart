@@ -20,9 +20,9 @@ void main() async {
   );
 
   final query = Uri.base.queryParameters;
-  final currentUserId = query['user'] ?? 'shahd'; 
-  final receiverId = currentUserId == 'shahd' ? 'laila' : 'shahd';
-  final receiverName = currentUserId == 'shahd' ? 'Laila' : 'Shahd';
+  final currentUserId = query['user'] ?? 'shahd1'; 
+  final receiverId = currentUserId == 'shahd1' ? 'laila' : 'shahd1';
+  final receiverName = currentUserId == 'shahd1' ? 'Laila' : 'Shahd1';
 
   runApp(MyApp(
     currentUserId: currentUserId,
