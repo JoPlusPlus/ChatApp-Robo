@@ -27,6 +27,8 @@ class ChatCubit extends Cubit<ChatState> {
     final chatStream = _service.getChatMessages(currentUserId, receiverId);
     _messagesSub = chatStream.listen((msgs) {
       _messages = msgs;
+      // Mark incoming messages as read
+      _markAsRead();
       emitCurrentState();
     }, onError: (e) => emit(ChatError(e.toString())));
 
@@ -36,12 +38,17 @@ class ChatCubit extends Cubit<ChatState> {
     }, onError: (e) => emit(ChatError(e.toString())));
   }
 
+  Future<void> _markAsRead() async {
+    final chatId = _service.getChatId(currentUserId, receiverId);
+    await _service.markMessagesAsRead(chatId, currentUserId);
+  }
+
   void emitCurrentState() {
     emit(
       ChatLoaded(
         messages: List.from(_messages),
         receiverName: _receiverData?["name"],
-        receiverPhoto: _receiverData?["image"],
+        receiverPhoto: _receiverData?["photoUrl"] ?? _receiverData?["image"],
         isOnline: _receiverData?["isOnline"] ?? false,
         isTyping: _receiverData?["isTyping"] ?? false,
         lastSeen: (_receiverData?["lastSeen"] as Timestamp?)?.toDate(),
@@ -50,7 +57,6 @@ class ChatCubit extends Cubit<ChatState> {
   }
 
   Future<void> sendText(String text) async {
-    print("Sending text...");
     if (text.trim().isEmpty) return;
 
     final msg = Message(
@@ -59,16 +65,14 @@ class ChatCubit extends Cubit<ChatState> {
       type: "text",
       text: text.trim(),
       sentAt: DateTime.now(),
+      status: MessageStatus.sent,
     );
 
     await _service.sendMessage(msg);
-    print("Message sent!");
   }
 
-  Future<void> sendVoice(String base64String) async {
-    if (base64String.isEmpty) {
-      return;
-    }
+  Future<void> sendVoice(String base64String, {int? durationMs}) async {
+    if (base64String.isEmpty) return;
 
     final msg = Message(
       senderId: currentUserId,
@@ -76,11 +80,25 @@ class ChatCubit extends Cubit<ChatState> {
       type: "voice",
       voiceBase64: base64String,
       sentAt: DateTime.now(),
+      status: MessageStatus.sent,
+      voiceDurationMs: durationMs,
     );
 
     try {
       await _service.sendMessage(msg);
-      //print("   Firestore sucess");
+    } catch (e) {
+      return;
+    }
+  }
+
+  Future<void> sendImage(String imagePath) async {
+    if (imagePath.isEmpty) return;
+    try {
+      await _service.sendImageMessage(
+        senderId: currentUserId,
+        receiverId: receiverId,
+        imagePath: imagePath,
+      );
     } catch (e) {
       return;
     }

@@ -1,7 +1,48 @@
 import 'package:chatwala/core/utils/app_theme.dart';
+import 'package:chatwala/core/model/message.dart';
+import 'package:chatwala/feature/chat/widget/image_bubble.dart';
 import 'package:chatwala/feature/chat/widget/voicebubble.dart';
 import 'package:flutter/material.dart';
-import '../../../core/model/message.dart';
+
+
+class MessageStatusIcon extends StatelessWidget {
+  final MessageStatus status;
+  final bool isSender;
+  final Color? color;
+
+  const MessageStatusIcon({
+    super.key,
+    required this.status,
+    required this.isSender,
+    this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (!isSender) return const SizedBox.shrink();
+
+    switch (status) {
+      case MessageStatus.sent:
+        return Icon(
+          Icons.check,
+          size: 14,
+          color: color ?? Colors.white.withValues(alpha: 0.7),
+        );
+      case MessageStatus.delivered:
+        return Icon(
+          Icons.done_all,
+          size: 14,
+          color: color ?? Colors.white.withValues(alpha: 0.7),
+        );
+      case MessageStatus.read:
+        return const Icon(
+          Icons.done_all,
+          size: 14,
+          color: Color(0xFF34B7F1), // WhatsApp blue tick
+        );
+    }
+  }
+}
 
 class ChatBubble extends StatelessWidget {
   final Message message;
@@ -21,7 +62,7 @@ class ChatBubble extends StatelessWidget {
           constraints: BoxConstraints(
             maxWidth: MediaQuery.of(context).size.width * 0.75,
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           margin: const EdgeInsets.symmetric(vertical: 3),
           decoration: BoxDecoration(
             color: isSender ? senderColor : receiverColor,
@@ -39,13 +80,46 @@ class ChatBubble extends StatelessWidget {
               ),
             ],
           ),
-          child: Text(
-            message.text ?? '',
-            style: TextStyle(
-              color: isSender ? Colors.white : AppTheme.textPrimary(context),
-              fontSize: 14,
-              height: 1.4,
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  message.text ?? '',
+                  style: TextStyle(
+                    color: isSender
+                        ? Colors.white
+                        : AppTheme.textPrimary(context),
+                    fontSize: 14,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 2),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "${message.sentAt.hour.toString().padLeft(2, '0')}:"
+                    "${message.sentAt.minute.toString().padLeft(2, '0')}",
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: isSender
+                          ? Colors.white.withValues(alpha: 0.6)
+                          : AppTheme.textHint(context),
+                    ),
+                  ),
+                  if (isSender) ...[
+                    const SizedBox(width: 3),
+                    MessageStatusIcon(
+                      status: message.status,
+                      isSender: isSender,
+                    ),
+                  ],
+                ],
+              ),
+            ],
           ),
         );
       case 'voice':
@@ -58,7 +132,12 @@ class ChatBubble extends StatelessWidget {
         return VoiceBubble(
           base64Audio: message.voiceBase64!,
           isSender: isSender,
+          durationMs: message.voiceDurationMs,
+          messageStatus: message.status,
+          sentAt: message.sentAt,
         );
+      case 'image':
+        return ImageBubble(message: message, isSender: isSender);
       default:
         return const SizedBox();
     }

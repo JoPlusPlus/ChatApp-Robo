@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-/// Represents a user in the chat list
+
 class ChatUser {
   final String uid;
   final String name;
@@ -53,7 +53,7 @@ class ChatUser {
   }
 }
 
-/// Home page states
+/// states
 sealed class HomeState {}
 
 class HomeInitial extends HomeState {}

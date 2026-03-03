@@ -18,7 +18,7 @@ class AuthCubit extends Cubit<AuthState> {
       super(const AuthState()) {
     _listenToAuthChanges();
   }
-
+/// Listen to Firebase Auth state changes and update AuthState accordingly
   void _listenToAuthChanges() {
     _authSubscription = _authRepository.authStateChanges.listen((user) {
       if (user != null) {
@@ -48,7 +48,7 @@ class AuthCubit extends Cubit<AuthState> {
       }
     });
   }
-
+  /// Sign up with email and password
   Future<void> signUp({required String email, required String password}) async {
     emit(const AuthState(status: AuthStatus.loading));
     try {
@@ -64,7 +64,7 @@ class AuthCubit extends Cubit<AuthState> {
       );
     }
   }
-
+/// Sign in with email and password
   Future<void> signIn({required String email, required String password}) async {
     emit(const AuthState(status: AuthStatus.loading));
     try {
@@ -80,7 +80,7 @@ class AuthCubit extends Cubit<AuthState> {
       );
     }
   }
-
+/// Sign in with Google
   Future<void> signInWithGoogle() async {
     emit(const AuthState(status: AuthStatus.loading));
     try {
@@ -99,7 +99,7 @@ class AuthCubit extends Cubit<AuthState> {
       );
     }
   }
-
+/// Sign 0ut the current user
   Future<void> signOut() async {
     emit(const AuthState(status: AuthStatus.loading));
     try {
@@ -120,7 +120,7 @@ class AuthCubit extends Cubit<AuthState> {
       );
     }
   }
-
+/// Reset password for the given email
   Future<void> resetPassword({required String email}) async {
     emit(const AuthState(status: AuthStatus.loading));
     try {

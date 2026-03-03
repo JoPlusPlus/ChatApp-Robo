@@ -1,5 +1,6 @@
 import 'package:chatwala/core/constant/const.dart';
 import 'package:chatwala/core/utils/app_theme.dart';
+import 'package:chatwala/feature/chat/data/chatservice.dart';
 import 'package:chatwala/feature/chat/screens/chatscreen.dart';
 import 'package:chatwala/feature/home/cubit/home_state.dart';
 import 'package:flutter/material.dart';
@@ -161,6 +162,36 @@ class ChatTile extends StatelessWidget {
                               ),
                             ),
                           ],
+                          // Unread badge
+                          StreamBuilder<int>(
+                            stream: ChatService().getUnreadCount(
+                              currentUserId,
+                              user.uid,
+                            ),
+                            builder: (context, snapshot) {
+                              final count = snapshot.data ?? 0;
+                              if (count == 0) return const SizedBox();
+                              return Container(
+                                margin: const EdgeInsets.only(left: 8),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 7,
+                                  vertical: 3,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.primary(context),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  count > 99 ? '99+' : '$count',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
                         ],
                       ),
                     ],

@@ -56,6 +56,34 @@ class AuthState {
   }
 
   @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AuthState &&
+          runtimeType == other.runtimeType &&
+          status == other.status &&
+          userId == other.userId &&
+          email == other.email &&
+          displayName == other.displayName &&
+          photoUrl == other.photoUrl &&
+          phoneNumber == other.phoneNumber &&
+          emailVerified == other.emailVerified &&
+          bio == other.bio &&
+          errorMessage == other.errorMessage;
+
+  @override
+  int get hashCode => Object.hash(
+    status,
+    userId,
+    email,
+    displayName,
+    photoUrl,
+    phoneNumber,
+    emailVerified,
+    bio,
+    errorMessage,
+  );
+
+  @override
   String toString() =>
       'AuthState(status: $status, userId: $userId, email: $email, displayName: $displayName, error: $errorMessage)';
 }

@@ -266,7 +266,7 @@ class _HomePageState extends State<HomePage>
   }
 }
 
-// ── Header Action Icon (private to this feature) ──
+
 class _HeaderActionIcon extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
