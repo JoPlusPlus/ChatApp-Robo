@@ -11,15 +11,23 @@ class ChatService {
     return ids.join('_');
   }
 
-  Future<void> sendMessage(Message msg) async {
-    final chatId = _getChatId(msg.senderId, msg.receiverId);
+Future<void> sendMessage(Message msg) async {
+  final chatId = _getChatId(msg.senderId, msg.receiverId);
+  //print("ChatService → sendMessage ");
+
+  try {
     await _db
         .collection(AppConstants.chatsCollection)
         .doc(chatId)
         .collection(AppConstants.messagesCollection)
         .add(msg.toFirestore());
+  
+  } catch (e, st) {
+   
+    return;
+    
   }
-
+}
   Stream<List<Message>> getChatMessages(String uid1, String uid2) {
     final chatId = _getChatId(uid1, uid2);
     return _db
@@ -35,18 +43,20 @@ class ChatService {
     return _db.collection(AppConstants.usersCollection).doc(uid).snapshots().map((doc) => doc.data());
   }
 
-  Future<void> setTyping(String uid, bool typing) async {
-    await _db.collection(AppConstants.usersCollection).doc(uid).set({
-      "isTyping": typing,
-      "isOnline": false,
-      "lastSeen": FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
-  }
 
-  Future<void> setOnline(String uid, bool online) async {
-    await _db.collection(AppConstants.usersCollection).doc(uid).set({
-      "isOnline": online,
-      "lastSeen": FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
-  }
+Future<void> setOnline(String uid, bool online) async {
+  await _db.collection('users').doc(uid).set({
+    'isOnline': online,
+    'lastSeen': FieldValue.serverTimestamp(),
+  }, SetOptions(merge: true));
+}
+
+
+Future<void> setTyping(String uid, bool typing) async {
+  await _db.collection('users').doc(uid).set({
+    'isTyping': typing,
+    'isOnline': true, 
+    'lastSeen': FieldValue.serverTimestamp(),
+  }, SetOptions(merge: true));
+}
 }

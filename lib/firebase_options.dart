@@ -15,42 +15,60 @@ import 'package:flutter/foundation.dart'
 /// );
 /// ```
 class DefaultFirebaseOptions {
- static FirebaseOptions get currentPlatform {
-  if (kIsWeb) {
-    return web;
+  static FirebaseOptions get currentPlatform {
+    if (kIsWeb) {
+      return web;
+    }
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.android:
+        return android;
+      case TargetPlatform.iOS:
+        return ios;
+      case TargetPlatform.macOS:
+        return macos;
+      case TargetPlatform.windows:
+        return windows;
+      case TargetPlatform.linux:
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for linux - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
+      default:
+        throw UnsupportedError(
+          'DefaultFirebaseOptions are not supported for this platform.',
+        );
+    }
   }
-  switch (defaultTargetPlatform) {
-    case TargetPlatform.android:
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for android - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
-    case TargetPlatform.iOS:
-      return ios;
-    case TargetPlatform.macOS:
-      return macos;
-    case TargetPlatform.windows:
-      return windows;
-    case TargetPlatform.linux:
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for linux - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
-    default:
-      throw UnsupportedError(
-        'DefaultFirebaseOptions are not supported for this platform.',
-      );
-  }
-}
 
-  
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyBJS0m-KY37IngdlXsCwCvYsIz5yRCEMhA',
+    appId: '1:707809151646:web:65e660b063ff9ba899098f',
+    messagingSenderId: '707809151646',
+    projectId: 'chat-app-shahd',
+    authDomain: 'chat-app-shahd.firebaseapp.com',
+    databaseURL: 'https://chat-app-shahd-default-rtdb.firebaseio.com',
+    storageBucket: 'chat-app-shahd.firebasestorage.app',
+    measurementId: 'G-VSXMY50771',
+  );
+
+  static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'AIzaSyAZD-fHN6wj4XeLZsm39D92YuMC28MLL40',
+    appId: '1:707809151646:android:e1c0ad6017c1104c99098f',
+    messagingSenderId: '707809151646',
+    projectId: 'chat-app-shahd',
+    databaseURL: 'https://chat-app-shahd-default-rtdb.firebaseio.com',
+    storageBucket: 'chat-app-shahd.firebasestorage.app',
+  );
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDiFWa74IOa9V7XwGQ9Pv4QGnYdc1kI7Wo',
     appId: '1:707809151646:ios:e0546198422272dc99098f',
     messagingSenderId: '707809151646',
     projectId: 'chat-app-shahd',
+    databaseURL: 'https://chat-app-shahd-default-rtdb.firebaseio.com',
     storageBucket: 'chat-app-shahd.firebasestorage.app',
+    androidClientId: '707809151646-fgp7qgsi57k1a9p0lkgjeedo9oapd3lh.apps.googleusercontent.com',
+    iosClientId: '707809151646-2oiu7puao1b8goikd0ki9o5p3qmbkt9k.apps.googleusercontent.com',
     iosBundleId: 'com.example.chatapp',
   );
 
@@ -59,7 +77,10 @@ class DefaultFirebaseOptions {
     appId: '1:707809151646:ios:e0546198422272dc99098f',
     messagingSenderId: '707809151646',
     projectId: 'chat-app-shahd',
+    databaseURL: 'https://chat-app-shahd-default-rtdb.firebaseio.com',
     storageBucket: 'chat-app-shahd.firebasestorage.app',
+    androidClientId: '707809151646-fgp7qgsi57k1a9p0lkgjeedo9oapd3lh.apps.googleusercontent.com',
+    iosClientId: '707809151646-2oiu7puao1b8goikd0ki9o5p3qmbkt9k.apps.googleusercontent.com',
     iosBundleId: 'com.example.chatapp',
   );
 
@@ -69,16 +90,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '707809151646',
     projectId: 'chat-app-shahd',
     authDomain: 'chat-app-shahd.firebaseapp.com',
+    databaseURL: 'https://chat-app-shahd-default-rtdb.firebaseio.com',
     storageBucket: 'chat-app-shahd.firebasestorage.app',
     measurementId: 'G-VSXMY50771',
   );
-  static const FirebaseOptions web = FirebaseOptions(
-  apiKey: 'AIzaSyBJS0m-KY37IngdlXsCwCvYsIz5yRCEMhA',
-  appId: '1:707809151646:web:65e660b063ff9ba899098f',
-  messagingSenderId: '707809151646',
-  projectId: 'chat-app-shahd',
-  authDomain: 'chat-app-shahd.firebaseapp.com',
-  storageBucket: 'chat-app-shahd.firebasestorage.app',
-  measurementId: 'G-VSXMY50771',
-);
 }

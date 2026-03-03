@@ -10,7 +10,7 @@ class AppConstants {
   static const String NoMessages    = "No messages yet...";
   static const String Recording         = "Recording...";
   static const String Playing           = "Playing...";
-}
+  }
 
 class StatusText {
   static const String typing   = "typing...";

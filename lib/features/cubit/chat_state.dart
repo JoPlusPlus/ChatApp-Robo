@@ -14,13 +14,14 @@ class ChatLoaded extends ChatState {
   final String? receiverPhoto;
   final bool isOnline;
   final bool isTyping;
-
+final DateTime? lastSeen;
   ChatLoaded({
     required this.messages,
     this.receiverName,
     this.receiverPhoto,
     this.isOnline = false,
     this.isTyping = false,
+    this.lastSeen,
   });
 }
 

@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'package:chatapp/core/model/message.dart';
 import 'package:chatapp/features/data/chatservice.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'chat_state.dart';
@@ -10,23 +11,23 @@ class ChatCubit extends Cubit<ChatState> {
   final ChatService _service;
   final String currentUserId;
   final String receiverId;
-
+final DateTime? lastSeen;
   StreamSubscription? _messagesSub;
   StreamSubscription? _userSub;
 
   List<Message> _messages = [];
   Map<String, dynamic>? _receiverData;
 
-  ChatCubit(this._service, this.currentUserId, this.receiverId) : super(ChatLoading()) {
-    _startListening();
+  ChatCubit(this._service, this.currentUserId, this.receiverId,[this.lastSeen]) : super(ChatLoading()) {
+    startListening();
   }
 
-  void _startListening() {
+  void startListening() {
     final chatStream = _service.getChatMessages(currentUserId, receiverId);
     _messagesSub = chatStream.listen(
       (msgs) {
         _messages = msgs;
-        _emitCurrentState();
+        emitCurrentState();
       },
       onError: (e) => emit(ChatError(e.toString())),
     );
@@ -34,45 +35,63 @@ class ChatCubit extends Cubit<ChatState> {
     _userSub = _service.getUserStream(receiverId).listen(
       (data) {
         _receiverData = data;
-        _emitCurrentState();
+        emitCurrentState();
       },
       onError: (e) => emit(ChatError(e.toString())),
     );
   }
 
-  void _emitCurrentState() {
-    emit(ChatLoaded(
-      messages: List.from(_messages),
-      receiverName: _receiverData?["name"],
-      receiverPhoto: _receiverData?["image"],
-      isOnline: _receiverData?["isOnline" ] ?? false,
-      isTyping: _receiverData?["isTyping"] ?? false,
-    ));
+  void emitCurrentState() {
+   emit(ChatLoaded(
+  messages: List.from(_messages),
+  receiverName: _receiverData?["name"],
+  receiverPhoto: _receiverData?["image"],
+  isOnline: _receiverData?["isOnline"] ?? false,
+  isTyping: _receiverData?["isTyping"] ?? false,
+  lastSeen: (_receiverData?["lastSeen"] as Timestamp?)?.toDate(),
+));
   }
 
-  Future<void> sendText(String text) async {
-    if (text.trim().isEmpty) return;
-    final msg = Message(
-      senderId: currentUserId,
-      receiverId: receiverId,
-      type: "text",
-      text: text.trim(),
-      sentAt: DateTime.now(),
-    );
+Future<void> sendText(String text) async {
+  print("Sending text...");
+  if (text.trim().isEmpty) return;
+
+  final msg = Message(
+    senderId: currentUserId,
+    receiverId: receiverId,
+    type: "text",
+    text: text.trim(),
+    sentAt: DateTime.now(),
+  );
+
+  await _service.sendMessage(msg);
+  print("Message sent!");
+}
+
+ Future<void> sendVoice(String base64String) async {
+  
+
+  if (base64String.isEmpty) {
+  
+    return;
+  }
+
+  final msg = Message(
+    senderId: currentUserId,
+    receiverId: receiverId,
+    type: "voice",
+    voiceBase64: base64String,
+    sentAt: DateTime.now(),
+  );
+
+  try {
+   
     await _service.sendMessage(msg);
+    //print("   Firestore sucess");
+  } catch (e, st) {
+   return;
   }
-
-  Future<void> sendVoice(String url) async {
-    final msg = Message(
-      senderId: currentUserId,
-      receiverId: receiverId,
-      type: "voice",
-      voiceUrl: url,
-      sentAt: DateTime.now(),
-    );
-    await _service.sendMessage(msg);
-  }
-
+}
   Future<void> setMyTyping(bool typing) => _service.setTyping(currentUserId, typing);
 
   @override

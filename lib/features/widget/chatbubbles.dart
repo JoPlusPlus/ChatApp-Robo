@@ -1,6 +1,6 @@
+import 'package:chatapp/features/widget/voicebubble.dart';
 import 'package:flutter/material.dart';
 import '../../core/model/message.dart';
-import 'audio_player.dart';
 
 class ChatBubble extends StatelessWidget {
   final Message message;
@@ -29,8 +29,15 @@ class ChatBubble extends StatelessWidget {
             style: TextStyle(color: isSender ? Colors.white : Colors.black),
           ),
         );
-      case 'audio':
-        return Audio(audioUrl: message.voiceUrl);
+case 'voice':
+  if (message.voiceBase64 == null || message.voiceBase64!.isEmpty) {
+  
+    return const Text(" emptyy");
+  }
+  return VoiceBubble(
+    base64Audio: message.voiceBase64!,
+    isSender: isSender,
+  );
       default:
         return const SizedBox();
     }

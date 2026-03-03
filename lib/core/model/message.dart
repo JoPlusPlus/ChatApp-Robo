@@ -6,8 +6,9 @@ class Message {
   final String receiverId;
   final String type;             
   final String? text;
-  final String? voiceUrl;
+ 
   final DateTime sentAt;
+  final String? voiceBase64;
           
 
   Message({
@@ -16,31 +17,42 @@ class Message {
     required this.receiverId,
     required this.type,
     this.text,
-    this.voiceUrl,
+   
     required this.sentAt,
+    this.voiceBase64,
   });
 
-  factory Message.fromFirestore(Map<String, dynamic> data, String docId) {
-    return Message(
-      id: docId,
-      senderId: data['senderId'] ?? '',
-      receiverId: data['receiverId'] ?? '',
-      type: data['type'] ?? 'text',
-      text: data['text'],
-      voiceUrl: data['voiceUrl'],
-      sentAt: (data['sentAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-    );
-  }
 
+  factory Message.fromFirestore(Map<String, dynamic> data, String id) {
+  final rawBase64 = data['voiceBase64'];
+ 
+
+  return Message(
+    senderId: data['senderId'] ?? '',
+    receiverId: data['receiverId'] ?? '',
+    type: data['type'] ?? 'text',
+    text: data['text'],
+    voiceBase64: rawBase64 as String?,
+    sentAt: (data['sentAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+  );
+}
   Map<String, dynamic> toFirestore() {
-    return {
+    final map = {
       'senderId': senderId,
       'receiverId': receiverId,
       'type': type,
-      if (text != null) 'text': text,
-      if (voiceUrl != null) 'voiceUrl': voiceUrl,
       'sentAt': Timestamp.fromDate(sentAt),
-  
     };
+
+    if (type == 'text' && text != null) {
+      map['text'] = text!;
+    }
+
+    if (type == 'voice' && voiceBase64 != null && voiceBase64!.isNotEmpty) {
+      map['voiceBase64'] = voiceBase64!;
+     
+    } 
+
+    return map;
   }
 }
