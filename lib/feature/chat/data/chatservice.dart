@@ -174,8 +174,8 @@ class ChatService {
   }) async {
     await _db.collection(AppConstants.usersCollection).doc(uid).set({
       'name': name,
-      if (email != null) 'email': email,
-      if (photoUrl != null) 'photoUrl': photoUrl,
+      'email': ?email,
+      'photoUrl': ?photoUrl,
       'isOnline': true,
       'lastSeen': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));

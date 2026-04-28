@@ -83,7 +83,7 @@ class ImageBubble extends StatelessWidget {
                       ),
                     );
                   },
-                  errorBuilder: (_, __, ___) => SizedBox(
+                  errorBuilder: (_, _, _) => SizedBox(
                     width: double.infinity,
                     height: 200,
                     child: Center(
@@ -165,7 +165,7 @@ class FullScreenImage extends StatelessWidget {
             child: Image.network(
               imageUrl,
               fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) => const Icon(
+              errorBuilder: (_, _, _) => const Icon(
                 Icons.broken_image_rounded,
                 color: Colors.white54,
                 size: 64,
